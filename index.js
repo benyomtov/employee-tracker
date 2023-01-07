@@ -2,16 +2,7 @@ const inquirer = require("inquirer");
 const logo = require('asciiart-logo');
 const config = require('./package.json');
 const table = require("console.table");
-const mysql = require('mysql2');
-
-const db = mysql.createConnection(
-    {
-        host: 'localhost',
-        user: 'root',
-        password: 'root',
-        database: 'employee_db'
-    }
-); 
+const {Database, employeeDB} = require('./db');
 
 console.log(logo(config,).render());
 
@@ -24,29 +15,45 @@ const question = [
     }
 ];
 
-var userResponse;
-
 function init () {
-    inquirer
-    .createPromptModule(question)
-    .then((response) => {
+    const employeeDatabase = new Database(employeeDB);
 
-        if (response === "View All Employees") {
+    inquirer.prompt(question)
+        .then((response) => {
 
-        } else if (response === "Add Employee") {
+            if (response.menu === "View All Employees") {
+                const database = employeeDatabase.viewEmployees()
+                    .then((data) => {
+                        console.table(data);
+                        init();
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
 
-        } else if (response === "Update Employee Role") {
+            } else if (response.menu === "View All Roles") {
 
-        } else if (response === "View All Roles") {
+                const database = employeeDatabase.viewRoles()
+                    .then((data) => {
+                        console.table(data);
+                        init();
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+
+            } else if (response.menu === "View All Departments") {
+                const database = employeeDatabase.viewDepartments()
+                    .then((data) => {
+                        console.table(data);
+                        init();
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
             
-        } else if (response === "Add Role") {
-            
-        } else if (response === "View All Departments") {
-            
-        }  else if (response === "Add Department") {
-            
-        } else {
-
-        }
-    });
+        });    
 };
+ 
+init();
