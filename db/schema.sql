@@ -14,7 +14,9 @@ CREATE TABLE role (
     department_id INT,
     FOREIGN KEY(department_id)
     REFERENCES department(id)
-    ON DELETE SET NULL
+    ON DELETE SET NULL,
+    is_manager BOOLEAN NOT NULL DEFAULT FALSE,
+    INDEX (is_manager)
 );
 
 CREATE TABLE employee (
@@ -29,12 +31,8 @@ CREATE TABLE employee (
     FOREIGN KEY (manager_id)
     REFERENCES employee(id)
     ON DELETE SET NULL,
-    manager VARCHAR(60);
+    manager VARCHAR(60),
+    are_manager BOOLEAN,
+    FOREIGN KEY(are_manager)
+    REFERENCES role(is_manager)
 );
-
-UPDATE employee
-SET employee.manager = 
-(SELECT CONCAT(first_name, " ", last_name) 
-FROM (SELECT * FROM employee) 
-AS temp WHERE temp.id = employee.manager_id) 
-WHERE employee.manager_id IS NOT NULL;

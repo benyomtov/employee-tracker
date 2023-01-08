@@ -15,6 +15,64 @@ const question = [
     }
 ];
 
+const addEmployeeQuestions = [
+    
+    {
+        type: "input",
+        name: "firstname",
+        message: "Please enter the new employee's first name."
+    },
+
+    {
+        type: "input",
+        name: "lastname",
+        message: "Please enter the new employee's last name."
+    },
+    
+    {
+        type: "list",
+        name: "role",
+        message: "Select the role this employee will be assigned to: (Use arrow keys)",
+        choices: async () => {
+            const employeeDatabase = new Database(employeeDB);
+            const data = await employeeDatabase.viewRoles();
+            return data.map((role) => {
+              return role.title;
+            });  
+        },
+    }
+];
+
+const addRoleQuestions = [
+    {
+        type: "input",
+        name: "role",
+        message: "Please enter the role you would like to add:"
+    },
+    {
+        type: "list",
+        name: "department",
+        message: "Please select a department to add your role to:",
+        choices: async () => {
+            const employeeDatabase = new Database(employeeDB);
+            const data = await employeeDatabase.viewDepartments();
+            return data.map((department) => {
+              return department.name;
+            });  
+        },
+    },
+    {
+        type: "confirm",
+        name: "manager",
+        message: "Is this role a management position?"
+    },
+    {
+        type: "number",
+        name: "salary",
+        message: "Please enter the salary for your new role",
+    }
+];
+
 function init () {
     const employeeDatabase = new Database(employeeDB);
 
@@ -51,8 +109,64 @@ function init () {
                     .catch((err) => {
                         console.log(err);
                     });
+            }  else if (response.menu === "Add Employee") {
+
+                var thisID;
+
+                inquirer.prompt(addEmployeeQuestions)
+                .then( async (responses) => {
+                    const data = await employeeDatabase.viewRoles();
+                    const dataArray = data.map((role) => {
+                        return {
+                            name: role.title,
+                            id: role.id,
+                        }
+                    });  
+
+                    for (let i = 0; i < dataArray.length; i++) {
+                        const thisRole = dataArray[i].name;
+
+                        if (responses.role == thisRole) {
+
+                            thisID = dataArray[i].id;
+
+                            const database = employeeDatabase.addEmployee(responses.firstname, responses.lastname, thisID);
+                            console.log(`${responses.firstname} ${responses.lastname} has been added to the system!`)
+                            init();
+                        }
+                    } 
+                });      
+            } else if (response.menu === "Add Role") {
+
+                var thisID;
+
+                inquirer.prompt(addRoleQuestions)
+                .then( async (responses) => {
+                    const data = await employeeDatabase.viewDepartments();
+                    const dataArray = data.map((department) => {
+                        return {
+                            name: department.name,
+                            id: department.id,
+                        }
+                    }); 
+                    
+                    for (let i = 0; i < dataArray.length; i++) {
+                        const thisDepartment = dataArray[i].name;
+
+                        if (responses.department == thisDepartment) {
+
+                            thisID = dataArray[i].id;
+
+                            const database = employeeDatabase.addRole(responses.role, responses.manager, responses.salary, thisID);
+                            console.log(`${responses.role} has been entered into the system!`);
+                            init();
+                            
+                        }
+                    } 
+
+                });
             }
-            
+
         });    
 };
  
