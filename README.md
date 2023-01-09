@@ -23,7 +23,7 @@
 
   NOTE: The requirements of this assignment stated that when an employee is added, the user would be asked to input the employee's manager. I decided that I wanted to make a more intuitive application, so I designed the "Add Employee" and "Update Employee Role" functions so that a manager is automatically selected for a new employee based on their role.
   
-  Included is a link to a demonstration video showcasing this application's functionality: 
+  Included is a link to a demonstration video showcasing this application's functionality: https://drive.google.com/file/d/1JhKTPEXedDKXx8HxLguj_W16DADoVSAv/view
 
   ## Contributing
   
