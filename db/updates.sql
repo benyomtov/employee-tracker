@@ -1,3 +1,5 @@
+--updates to set employee manager for each employee based on manager_id before running application
+
 UPDATE employee
 SET employee.manager = (
     SELECT CONCAT(first_name, " ", last_name)

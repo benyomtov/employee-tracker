@@ -1,13 +1,16 @@
-
+//requires all necessary packages and files
 
 const inquirer = require("inquirer");
 const logo = require('asciiart-logo');
 const config = require('./package.json');
 const table = require("console.table");
 const {Database, employeeDB} = require('./db');
-const { EventEmitter } = require("stream");
+
+//renders ascii art logo 
 
 console.log(logo(config,).render());
+
+//prompt question for main menu
 
 const question = [
     {
@@ -17,6 +20,8 @@ const question = [
         choices: ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department"],
     }
 ];
+
+//prompt autofills role choices based on existing roles
 
 const addEmployeeQuestions = [
     
@@ -45,6 +50,8 @@ const addEmployeeQuestions = [
         },
     }
 ];
+
+//prompt autofills department choices based on existing departments
 
 const addRoleQuestions = [
     {
@@ -84,6 +91,8 @@ const addDepartmentQuestion = [
     }
 ];
 
+//autofills employee and role choices based on existing options
+
 const updateRoleQuestions = [
     {
         type: "list",
@@ -111,11 +120,18 @@ const updateRoleQuestions = [
     },
 ]
 
+//initializes and runs application
+
 function init () {
+
+    //creates new instance of mySQL database
+
     const employeeDatabase = new Database(employeeDB);
 
     inquirer.prompt(question)
         .then((response) => {
+
+            //if statement executing appropriate database method based on user selection
 
             if (response.menu === "View All Employees") {
                 const database = employeeDatabase.viewEmployees()
@@ -147,12 +163,16 @@ function init () {
                     .catch((err) => {
                         console.log(err);
                     });
+
             }  else if (response.menu === "Add Employee") {
 
                 var thisID;
 
                 inquirer.prompt(addEmployeeQuestions)
                 .then( async (responses) => {
+
+                    //before executing the addEmployee method, this else-if block matches the user selection for role with its corresponding role_id in the database and passes it as an argument to the method.
+
                     const data = await employeeDatabase.viewRoles();
                     const dataArray = data.map((role) => {
                         return {
@@ -180,6 +200,9 @@ function init () {
 
                 inquirer.prompt(addRoleQuestions)
                 .then( async (responses) => {
+
+                    //before executing the addRole method, this else-if block matches the user selection for department with its corresponding department_id in the database and passes it as an argument to the method.
+
                     const data = await employeeDatabase.viewDepartments();
                     const dataArray = data.map((department) => {
                         return {
@@ -214,6 +237,8 @@ function init () {
                 });
 
             } else {
+
+                //before executing the updateRole method, this else-if block matches the user selection for role  and employee with their corresponding role_id and employee.id in the database and passes them as arguments to the method,
 
                 var thisRoleID;
                 var thisEmployeeID;

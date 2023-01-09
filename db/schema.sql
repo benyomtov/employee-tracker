@@ -1,3 +1,5 @@
+--creates three databases and links them
+
 CREATE DATABASE employee_db;
 
 USE employee_db;

@@ -1,3 +1,4 @@
+--seeds to fill initial database
 INSERT INTO department (name)
 VALUES  ("Sales"),
         ("Engineering"),

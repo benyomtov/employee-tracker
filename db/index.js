@@ -1,3 +1,5 @@
+//everything up to line 18 sets of the connection to mySQL
+
 const mysql = require('mysql2');
 
 const employeeDB = mysql.createConnection(
@@ -15,11 +17,15 @@ employeeDB.connect((err) => {
     }
 });
 
+//class Database contains methods for application functionality
+
 class Database {
 
     constructor(db) {
         this.db = db;
     }
+
+    //pulls up derived table where the corresponding role and department info are shown alongside the employee table info
 
     viewEmployees() {
         return new Promise((resolve, reject) => {
@@ -33,6 +39,8 @@ class Database {
         });
     }
 
+    //pulls up derived table that joins role and department tables and shows info from both
+
     viewRoles() {
         return new Promise((resolve, reject) => {
             this.db.query('SELECT role.id, role.title, role.salary, department.name FROM role JOIN department ON role.department_id = department.id;', (err, data) => {
@@ -45,6 +53,8 @@ class Database {
         });
     }
 
+    //pulls up department table
+
     viewDepartments() {
         return new Promise((resolve, reject) => {
           this.db.query('SELECT * FROM department', (err, data) => {
@@ -56,6 +66,8 @@ class Database {
           });
         });
     } 
+
+    //inserts a new employee into database and updates database so all information for that employee is correct
 
     addEmployee(firstName, lastName, roleID) {
         return new Promise((resolve, reject) => {
@@ -75,6 +87,8 @@ class Database {
         });
     }
 
+    //inserts a new role
+
     addRole(newRole, managerConfirm, salary, departmentID) {
         return new Promise((resolve, reject) => {
             this.db.query('INSERT INTO role (title, is_manager, salary, department_id) VALUES (?, ?, ?, ?)', [newRole, managerConfirm, salary, departmentID], (err, data) => {
@@ -88,6 +102,8 @@ class Database {
         });
     }
 
+    //inserts a new department
+
     addDepartment(name) {
         return new Promise((resolve, reject) => {
             this.db.query('INSERT INTO department (name) VALUES (?)', [name], (err, data) => {
@@ -100,6 +116,8 @@ class Database {
             });
         });
     }
+
+    //updates the role of a given employee and updates employee table to reflect changes
 
     updateRole(employee, role) {
         return new Promise((resolve, reject) => {
@@ -124,6 +142,8 @@ class Database {
 
     
 }
+
+//exports Database object and mySQL connection to main index file
 
 module.exports = {
     Database, 
