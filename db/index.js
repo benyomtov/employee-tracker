@@ -88,6 +88,32 @@ class Database {
         });
     }
 
+    addDepartment(name) {
+        return new Promise((resolve, reject) => {
+            this.db.query('INSERT INTO department (name) VALUES (?)', [name], (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+    }
+
+    updateRole(employee, role) {
+        return new Promise((resolve, reject) => {
+            this.db.query('UPDATE employee SET role_id = (?) WHERE id = (?)', [role, employee], (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+    }
+
     
 }
 

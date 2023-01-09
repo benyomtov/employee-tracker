@@ -1,8 +1,11 @@
+EventEmitter.setMaxListeners(20); 
+
 const inquirer = require("inquirer");
 const logo = require('asciiart-logo');
 const config = require('./package.json');
 const table = require("console.table");
 const {Database, employeeDB} = require('./db');
+const { EventEmitter } = require("stream");
 
 console.log(logo(config,).render());
 
@@ -72,6 +75,41 @@ const addRoleQuestions = [
         message: "Please enter the salary for your new role",
     }
 ];
+
+const addDepartmentQuestion = [
+    {
+        type: "input",
+        name: "name",
+        message: "Please input the department you would like to add:"
+    }
+];
+
+const updateRoleQuestions = [
+    {
+        type: "list",
+        name: "employee",
+        message: "Choose an employee to update role:",
+        choices: async () => {
+            const employeeDatabase = new Database(employeeDB);
+            const data = await employeeDatabase.viewEmployees();
+            return data.map((employee) => {
+              return (employee.first_name + " " + employee.last_name);
+            });  
+        },
+    },
+    {
+        type: "list",
+        name: "role",
+        message: "Choose a new role for the selected employee:",
+        choices: async () => {
+            const employeeDatabase = new Database(employeeDB);
+            const data = await employeeDatabase.viewRoles();
+            return data.map((role) => {
+              return role.title;
+            });  
+        },
+    },
+]
 
 function init () {
     const employeeDatabase = new Database(employeeDB);
@@ -163,6 +201,69 @@ function init () {
                             
                         }
                     } 
+
+                });
+            } else if (response.menu === "Add Department") {
+
+                inquirer.prompt(addDepartmentQuestion)
+                    .then(async (response) => {
+                        const database = employeeDatabase.addDepartment(response.name);
+                        console.log(`${response.name} has been entered into the system!`);
+                        init();
+
+                });
+
+            } else {
+
+                var thisRoleID;
+                var thisEmployeeID;
+
+                inquirer.prompt(updateRoleQuestions)
+                .then(async (responses) => {
+                    
+                    const data = await employeeDatabase.viewRoles();
+                    const dataArray = data.map((role) => {
+                        return {
+                            name: role.title,
+                            id: role.id,
+                        }
+                    }); 
+                    
+                    for (let i = 0; i < dataArray.length; i++) {
+                        const thisRole = dataArray[i].name;
+
+                        if (responses.role == thisRole) {
+
+                            thisRoleID = dataArray[i].id;
+
+                            const moreData = await employeeDatabase.viewEmployees();
+                            const anotherDataArray = data.map((employee) => {
+                            return {
+                                name: employee.first_name + " " + employee.last_name,
+                                id: employee.id,
+                            }
+                            }); 
+
+                            for (let i = 0; i < dataArray.length; i++) {
+                                
+                                const thisEmployee = dataArray[i].name;
+
+                                if (responses.role == thisRole) {
+                                    thisRoleID = dataArray[i].id;
+
+                                    const database = employeeDatabase.updateRole(thisEmployeeID, thisRoleID);
+                                    console.log(`${responses.employee}'s role has been changed to ${responses.role}`);
+                                    init();
+                                }
+                            }
+                                
+                            
+                        }
+                    } 
+                
+
+                    
+                    
 
                 });
             }
