@@ -65,7 +65,7 @@ class Database {
                 } else {
                     this.db.query('UPDATE employee e JOIN role r ON e.role_id = r.id SET e.are_manager = r.is_manager', (err) => { if (err) { console.log(err); } });
                     this.db.query('CREATE TABLE temp_table AS SELECT e.id, e.first_name, e.last_name, e.role_id, e.manager_id, e.manager, e.are_manager, r.title, r.salary, r.department_id, r.is_manager, d.name FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id;', (err) => { if (err) { console.log(err); } });
-                    this.db.query('UPDATE temp_table q SET q.manager_id = (SELECT e2.id FROM (SELECT e.id, e.first_name, e.last_name, e.role_id, e.manager_id, e.manager, e.are_manager, r.title, r.salary, r.department_id, r.is_manager, d.name FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id) e2 WHERE e2.are_manager = 1 AND e2.department_id = q.department_id LIMIT 1) WHERE q.id = (SELECT MAX(id) FROM employee) AND q.are_manager = 0;', (err) => { if (err) { console.log(err); } });
+                    this.db.query('UPDATE temp_table q SET q.manager_id = (SELECT e2.id FROM (SELECT e.id, e.first_name, e.last_name, e.role_id, e.manager_id, e.manager, e.are_manager, r.title, r.salary, r.department_id, r.is_manager, d.name FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id) e2 WHERE e2.are_manager = 1 AND e2.department_id = q.department_id LIMIT 1) WHERE q.are_manager = 0;', (err) => { if (err) { console.log(err); } });
                     this.db.query('UPDATE employee e INNER JOIN temp_table t ON e.id = t.id SET e.manager_id = t.manager_id;', (err) => { if (err) { console.log(err); } });
                     this.db.query('DROP TABLE temp_table;', (err) => { if (err) { console.log(err); } });
                     this.db.query('UPDATE employee SET employee.manager = (SELECT CONCAT(first_name, " ", last_name) FROM (SELECT * FROM employee) AS temp WHERE temp.id = employee.manager_id);', (err) => { if (err) { console.log(err); } });
@@ -108,6 +108,14 @@ class Database {
                     console.log(err);
                     reject(err);
                 } else {
+                    this.db.query('UPDATE employee e SET e.are_manager = (SELECT r.is_manager FROM (SELECT e.id, e.first_name, e.last_name, e.role_id, e.manager_id, e.manager, e.are_manager, r.title, r.salary, r.department_id, r.is_manager FROM employee e JOIN role r ON e.role_id = r.id) r WHERE e.role_id = r.id);', (err) => { if (err) { console.log(err); } });
+                    this.db.query('UPDATE employee e JOIN role r ON e.role_id = r.id SET e.are_manager = r.is_manager', (err) => { if (err) { console.log(err); } });
+                    this.db.query('CREATE TABLE temp_table AS SELECT e.id, e.first_name, e.last_name, e.role_id, e.manager_id, e.manager, e.are_manager, r.title, r.salary, r.department_id, r.is_manager, d.name FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id;', (err) => { if (err) { console.log(err); } });
+                    this.db.query('UPDATE temp_table q SET q.manager_id = (SELECT e2.id FROM (SELECT e.id, e.first_name, e.last_name, e.role_id, e.manager_id, e.manager, e.are_manager, r.title, r.salary, r.department_id, r.is_manager, d.name FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id) e2 WHERE e2.are_manager = 1 AND e2.department_id = q.department_id LIMIT 1) WHERE q.are_manager = 0;', (err) => { if (err) { console.log(err); } });
+                    this.db.query('UPDATE employee e INNER JOIN temp_table t ON e.id = t.id SET e.manager_id = t.manager_id;', (err) => { if (err) { console.log(err); } });
+                    this.db.query('DROP TABLE temp_table;', (err) => { if (err) { console.log(err); } });
+                    this.db.query('UPDATE employee SET employee.manager = (SELECT CONCAT(first_name, " ", last_name) FROM (SELECT * FROM employee) AS temp WHERE temp.id = employee.manager_id);', (err) => { if (err) { console.log(err); } });
+                    this.db.query('UPDATE employee e SET e.manager = NULL, e.manager_id = NULL WHERE e.are_manager = 1;', (err) => { if (err) { console.log(err); } });
                     resolve(data);
                 }
             });

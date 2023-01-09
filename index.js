@@ -1,4 +1,4 @@
-EventEmitter.setMaxListeners(20); 
+
 
 const inquirer = require("inquirer");
 const logo = require('asciiart-logo');
@@ -234,33 +234,32 @@ function init () {
 
                         if (responses.role == thisRole) {
 
-                            thisRoleID = dataArray[i].id;
-
-                            const moreData = await employeeDatabase.viewEmployees();
-                            const anotherDataArray = data.map((employee) => {
-                            return {
-                                name: employee.first_name + " " + employee.last_name,
-                                id: employee.id,
-                            }
-                            }); 
-
-                            for (let i = 0; i < dataArray.length; i++) {
-                                
-                                const thisEmployee = dataArray[i].name;
-
-                                if (responses.role == thisRole) {
-                                    thisRoleID = dataArray[i].id;
-
-                                    const database = employeeDatabase.updateRole(thisEmployeeID, thisRoleID);
-                                    console.log(`${responses.employee}'s role has been changed to ${responses.role}`);
-                                    init();
-                                }
-                            }
-                                
-                            
+                            thisRoleID = dataArray[i].id;  
                         }
                     } 
-                
+
+                    const moreData = await employeeDatabase.viewEmployees();
+                    const anotherDataArray = moreData.map((employee) => {
+                        return {
+                            name: employee.first_name + " " + employee.last_name,
+                            id: employee.id,
+                        }
+                    });
+
+                    for (let i = 0; i < anotherDataArray.length; i++) {
+
+                        const thisEmployee = anotherDataArray[i].name;
+
+                        if (responses.employee == thisEmployee) {
+                            thisEmployeeID = anotherDataArray[i].id;
+
+                            const database = employeeDatabase.updateRole(thisEmployeeID, thisRoleID);
+                            console.log(`${responses.employee}'s role has been changed to ${responses.role}`);
+                            console.log(thisRoleID, thisEmployeeID);
+                            init();
+                        }
+                    }
+
 
                     
                     
